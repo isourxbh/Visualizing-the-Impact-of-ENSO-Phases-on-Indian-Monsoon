@@ -1,0 +1,6 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* Astra UI design system — precompiled tokens, utility classes, and Instrument Sans font */
+@import '@figma/astraui/styles.css';

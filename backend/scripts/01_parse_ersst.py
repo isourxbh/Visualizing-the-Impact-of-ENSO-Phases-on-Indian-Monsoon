@@ -20,41 +20,38 @@ def run():
     # Usually ERSST variable is 'sst'
     ds = xr.open_mfdataset(str(ersst_dir / "*.nc"), combine='by_coords')
     
-    # Ensure longitude is in -180 to 180 if needed, or 0-360.
-    # ERSST usually uses 0-360 longitude. Niño 3.4 is 170W - 120W, which is 190 - 240 in 0-360 format.
-    # Let's check longitude range
+    # Indo-Pacific domain: 60°S–66°N, 100°E–77°W
+    # In 0-360 format: 100°E = 100, 77°W = 283
     lons = ds['lon'].values
     if lons.max() > 180:
-        lon_min, lon_max = 190.0, 240.0
+        lon_min, lon_max = 100.0, 283.0
     else:
-        lon_min, lon_max = -170.0, -120.0
+        lon_min, lon_max = 100.0, -77.0  # -77 = 77°W
         
-    lat_min, lat_max = -5.0, 5.0
+    lat_min, lat_max = -60.0, 66.0
     
-    # 2. Crop to Niño 3.4
-    # Note: ERSST latitudes might be decreasing or increasing. Using slice with caution.
-    # It's safer to use selection mask or ensure correct slice order.
+    # 2. Crop to Indo-Pacific domain
     lats = ds['lat'].values
     if lats[0] > lats[-1]:
-        nino34 = ds.sel(lat=slice(lat_max, lat_min), lon=slice(lon_min, lon_max))
+        region = ds.sel(lat=slice(lat_max, lat_min), lon=slice(lon_min, lon_max))
     else:
-        nino34 = ds.sel(lat=slice(lat_min, lat_max), lon=slice(lon_min, lon_max))
+        region = ds.sel(lat=slice(lat_min, lat_max), lon=slice(lon_min, lon_max))
         
     # Create directory for JSONs
     sst_ersst_dir = PRECOMPUTED_DIR / "sst" / "ersst"
     sst_ersst_dir.mkdir(parents=True, exist_ok=True)
 
-    # 3. Extract grid for event months
-    event_months = {
-        "nov_2015": "2015-11",
-        "nov_2020": "2020-11",
-        "nov_2023": "2023-11"
-    }
+    # 3. Extract grid for all months 2000-2024
+    event_months = {}
+    month_names = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    for y in range(2000, 2025):
+        for m_idx, m_name in enumerate(month_names, start=1):
+            event_months[f"{m_name}_{y}"] = f"{y}-{m_idx:02d}"
     
     for event_name, event_date in event_months.items():
         try:
             # select the specific month
-            grid = nino34.sel(time=event_date)
+            grid = region.sel(time=event_date)
             # handle cases where multiple times might be returned if time is not exactly monthly 1st
             if 'time' in grid.dims:
                 grid = grid.isel(time=0)
@@ -79,8 +76,8 @@ def run():
                 "dataset": "ersst",
                 "date": event_date,
                 "grid": {
-                    "lat_range": [-5, 5],
-                    "lon_range": [-170, -120],
+                    "lat_range": [-60, 66],
+                    "lon_range": [100, -77],
                     "lat_step": 2.0,
                     "lon_step": 2.0,
                     "values": values
@@ -91,8 +88,18 @@ def run():
         except Exception as e:
             print(f"Warning: Could not process event {event_name}: {e}")
 
-    # 4. Compute area-weighted monthly mean SST
-    # Niño 3.4 region area weighting: weights = cos(lat)
+    # 4. Compute area-weighted monthly mean SST for ONI
+    # ONI is computed from the Niño 3.4 box (5°S–5°N, 170°W–120°W)
+    # which is separate from the wider Indo-Pacific region used above.
+    if lons.max() > 180:
+        nino34_lon_min, nino34_lon_max = 190.0, 240.0
+    else:
+        nino34_lon_min, nino34_lon_max = -170.0, -120.0
+    if lats[0] > lats[-1]:
+        nino34 = ds.sel(lat=slice(5.0, -5.0), lon=slice(nino34_lon_min, nino34_lon_max))
+    else:
+        nino34 = ds.sel(lat=slice(-5.0, 5.0), lon=slice(nino34_lon_min, nino34_lon_max))
+
     weights = np.cos(np.deg2rad(nino34.lat))
     weights.name = "weights"
     sst_mean = nino34['sst'].weighted(weights).mean(dim=["lon", "lat"])
