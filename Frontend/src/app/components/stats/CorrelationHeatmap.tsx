@@ -36,7 +36,7 @@ export function CorrelationHeatmap({ xFeature, yFeature, onSelectPair }: Props) 
       cells={cells.map((c) => ({ row: c.row, col: c.col, value: c.r }))}
       rowLabels={labels}
       colLabels={features.map((f) => f.id.toUpperCase())}
-      color={(v) => correlationScale(v)}
+      color={(v) => v === undefined ? "var(--muted)" : correlationScale(v)}
       cellHeight={40}
       gap={3}
       rounded

@@ -43,7 +43,7 @@ export function StateSensitivityHeatmap({ selectedRegionId, onSelect }: StateSen
         cols={1}
         cells={cells}
         rowLabels={data.map((d) => d.name)}
-        color={(v) => correlationScale(v)}
+        color={(v) => v === undefined ? "var(--muted)" : correlationScale(v)}
         cellHeight={16}
         onCellClick={(cell) => onSelect(data[cell.row].regionId)}
         isSelected={(cell) => data[cell.row]?.regionId === selectedRegionId}

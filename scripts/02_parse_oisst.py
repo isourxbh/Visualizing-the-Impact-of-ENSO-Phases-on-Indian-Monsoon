@@ -12,16 +12,11 @@ def run():
     print("Running 02_parse_oisst...")
     tif_path = RAW_DIR / "oisst" / "OISST_v2_1_Nino_Weekly_Anomalies.tif"
     
-    # We will pick 3 bands representing roughly Nov 2015, Nov 2020, Nov 2023
-    # Band 1 ~ Jan 2000. 
-    # Nov 2015 is ~ 15*52 + 45 = 825
-    # Nov 2020 is ~ 20*52 + 45 = 1085
-    # Nov 2023 is ~ 23*52 + 45 = 1241
-    events = {
-        "nov_2015": ("2015-11", 825),
-        "nov_2020": ("2020-11", 1085),
-        "nov_2023": ("2023-11", 1241)
-    }
+    events = {}
+    for year in range(2000, 2025):
+        # Jan 2000 is band 1. Nov is ~ 45th week of the year.
+        band_idx = (year - 2000) * 52 + 45
+        events[f"nov_{year}"] = (f"{year}-11", band_idx)
     
     sst_oisst_dir = PRECOMPUTED_DIR / "sst" / "oisst"
     sst_oisst_dir.mkdir(parents=True, exist_ok=True)

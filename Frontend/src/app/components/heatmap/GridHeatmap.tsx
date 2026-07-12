@@ -13,7 +13,7 @@ interface GridHeatmapProps {
   cols: number;
   cells: GridCell[];
   /** Resolve a value to a CSS color. */
-  color: (value: number) => string;
+  color: (value: number | undefined) => string;
   rowLabels?: string[];
   colLabels?: string[];
   tooltip?: (cell: GridCell) => ReactNode;
@@ -100,28 +100,28 @@ export function GridHeatmap({
           >
             {Array.from({ length: rows }).map((_, r) =>
               Array.from({ length: cols }).map((__, c) => {
-                const cell = byKey.get(`${r}:${c}`) ?? { row: r, col: c, value: 0 };
-                const selected = isSelected?.(cell) ?? false;
+                const cell = byKey.get(`${r}:${c}`);
+                const selected = cell ? isSelected?.(cell) ?? false : false;
                 return (
                   <div
                     key={`${r}:${c}`}
                     className={cn(
                       "transition-[outline] duration-100",
                       rounded ? "rounded-sm" : "rounded-[2px]",
-                      onCellClick ? "cursor-pointer" : "",
+                      (onCellClick && cell) ? "cursor-pointer" : "",
                     )}
                     style={{
-                      background: color(cell.value),
+                      background: color(cell?.value),
                       outline: selected ? "2px solid var(--ring)" : "none",
                       outlineOffset: selected ? -1 : 0,
                       boxShadow: selected ? "0 0 0 1px var(--ring)" : undefined,
                     }}
-                    onClick={() => onCellClick?.(cell)}
+                    onClick={() => cell && onCellClick?.(cell)}
                     onMouseEnter={(e) => {
-                      if (tooltip) setTip({ x: e.clientX, y: e.clientY, content: tooltip(cell) });
+                      if (tooltip && cell) setTip({ x: e.clientX, y: e.clientY, content: tooltip(cell) });
                     }}
                     onMouseMove={(e) => {
-                      if (tooltip) setTip({ x: e.clientX, y: e.clientY, content: tooltip(cell) });
+                      if (tooltip && cell) setTip({ x: e.clientX, y: e.clientY, content: tooltip(cell) });
                     }}
                   />
                 );

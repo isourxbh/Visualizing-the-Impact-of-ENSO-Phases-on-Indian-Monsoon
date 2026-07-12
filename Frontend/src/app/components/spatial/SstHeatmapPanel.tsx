@@ -50,7 +50,7 @@ export function SstHeatmapPanel({ year }: { year: number }) {
         rows={grid.rows}
         cols={grid.cols}
         cells={grid.cells}
-        color={(v) => sequentialScale(v, SST_MIN, SST_MAX)}
+        color={(v) => v === undefined ? "var(--muted)" : sequentialScale(v, SST_MIN, SST_MAX)}
         cellHeight={12}
         gap={1}
         tooltip={(cell) => {

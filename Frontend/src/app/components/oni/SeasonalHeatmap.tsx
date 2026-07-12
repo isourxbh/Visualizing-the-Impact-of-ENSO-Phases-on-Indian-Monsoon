@@ -26,7 +26,7 @@ export function SeasonalHeatmap({ year }: { year: number }) {
       rows={data.rows.length}
       cols={12}
       cells={data.cells}
-      color={(v) => divergingScale(v, 60)}
+      color={(v) => v === undefined ? "var(--muted)" : divergingScale(v, 60)}
       cellHeight={14}
       gap={1}
       rowLabels={data.rows}

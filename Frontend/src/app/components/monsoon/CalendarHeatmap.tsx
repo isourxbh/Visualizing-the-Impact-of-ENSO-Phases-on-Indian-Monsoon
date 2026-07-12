@@ -27,7 +27,7 @@ export function CalendarHeatmap({ year, regionId }: { year: number; regionId: st
       cells={gridCells}
       colLabels={WEEKDAYS}
       rowLabels={Array.from({ length: weeks }, (_, i) => `Wk ${i + 1}`)}
-      color={(v) => (v <= 0 ? "var(--muted)" : sequentialScale(v, 0, max))}
+      color={(v) => (v === undefined || v <= 0 ? "var(--muted)" : sequentialScale(v, 0, max))}
       cellHeight={20}
       rounded
       tooltip={(cell) => {
