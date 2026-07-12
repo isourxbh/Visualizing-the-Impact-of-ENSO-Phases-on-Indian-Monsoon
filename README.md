@@ -12,12 +12,15 @@ This project explores the relationships between the El Niño-Southern Oscillatio
 The precomputed datasets and databases needed to run this application are hosted on Hugging Face:
 👉 **[IndianMonsoon_ENSO_Impact Dataset](https://huggingface.co/datasets/Chronos19/IndianMonsoon_ENSO_Impact)**
 
-To run this project:
-1. Download the contents of the Hugging Face dataset.
-2. Create a folder named `data` in the root of this repository.
-3. Place all the downloaded files and folders (e.g., `db/`, `precomputed/`, `raw/`, etc.) inside that `data` folder.
+To automatically download and set up the dataset, run the provided download script using `uv`:
 
-*(Note: Large raw datasets and precomputed data files are intentionally excluded from this GitHub repository to keep it lightweight.)*
+```bash
+uv run scripts/download_data.py
+```
+
+*(Note: The script requires a Hugging Face access token to avoid rate limits. It will automatically prompt you for your token if the `HF_TOKEN` environment variable is not set.)*
+
+Large raw datasets and precomputed data files are intentionally excluded from this GitHub repository to keep it lightweight.
 
 
 ## How to Spin Up the Server Locally
