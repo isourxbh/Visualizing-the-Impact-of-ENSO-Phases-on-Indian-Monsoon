@@ -16,12 +16,16 @@ const API_BASE = "/api";
 
 async function fetchJson<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_BASE}${path}`);
+    const res = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
     return null;
   }
+}
+
+export function normalizeState(name: string): string {
+  return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/&/g, "and");
 }
 
 // ---------------------------------------------------------------------------
@@ -137,24 +141,22 @@ export function fetchRainfallCumulative(
   year: number,
 ): Promise<ApiRainfallCumulative | null> {
   return fetchJson<ApiRainfallCumulative>(
-    `/rainfall/cumulative?state=${encodeURIComponent(state)}&year=${year}`,
+    `/rainfall/cumulative?state=${encodeURIComponent(normalizeState(state))}&year=${year}`,
   );
 }
 
-export interface ApiAnimationFrameState {
-  state: string;
-  current_rain: number;
-  cumulative_rain: number;
+export interface ApiAnimationWeek {
+  week: number;
+  currentMm: number;
+  cumMm: number;
 }
 
-export function fetchRainfallAnimationFrame(
+export type ApiAnimation = Record<string, ApiAnimationWeek[]>;
+
+export function fetchRainfallAnimation(
   year: number,
-  startDate: string,
-  endDate: string,
-): Promise<{ frame: ApiAnimationFrameState[] } | null> {
-  return fetchJson(
-    `/rainfall/animation-frame?year=${year}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`,
-  );
+): Promise<ApiAnimation | null> {
+  return fetchJson(`/rainfall/animation?year=${year}`);
 }
 
 export interface ApiSeasonalHeatmap {
@@ -180,7 +182,7 @@ export function fetchCalendarHeatmap(
   year: number,
 ): Promise<ApiCalendarHeatmap | null> {
   return fetchJson<ApiCalendarHeatmap>(
-    `/rainfall/calendar?state=${encodeURIComponent(state)}&year=${year}`,
+    `/rainfall/calendar?state=${encodeURIComponent(normalizeState(state))}&year=${year}`,
   );
 }
 
@@ -237,7 +239,7 @@ export function fetchCorrelationScatter(
   state: string,
 ): Promise<ApiCorrelationScatter | null> {
   return fetchJson<ApiCorrelationScatter>(
-    `/correlation/scatter?state=${encodeURIComponent(state)}`,
+    `/correlation/scatter?state=${encodeURIComponent(normalizeState(state))}`,
   );
 }
 
