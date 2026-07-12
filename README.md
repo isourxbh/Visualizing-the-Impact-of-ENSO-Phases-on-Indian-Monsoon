@@ -7,7 +7,18 @@ This project explores the relationships between the El Niño-Southern Oscillatio
 - `/backend` - FastAPI Python server delivering optimized precomputed data.
 - `/scripts` - Python scripts for the raw data processing pipeline.
 
-*(Note: Large raw datasets and precomputed data files are intentionally excluded from this repository.)*
+## Dataset Setup
+
+The precomputed datasets and databases needed to run this application are hosted on Hugging Face:
+👉 **[IndianMonsoon_ENSO_Impact Dataset](https://huggingface.co/datasets/Chronos19/IndianMonsoon_ENSO_Impact)**
+
+To run this project:
+1. Download the contents of the Hugging Face dataset.
+2. Create a folder named `data` in the root of this repository.
+3. Place all the downloaded files and folders (e.g., `db/`, `precomputed/`, `raw/`, etc.) inside that `data` folder.
+
+*(Note: Large raw datasets and precomputed data files are intentionally excluded from this GitHub repository to keep it lightweight.)*
+
 
 ## How to Spin Up the Server Locally
 
