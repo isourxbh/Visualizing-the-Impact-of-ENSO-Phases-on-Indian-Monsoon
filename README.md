@@ -26,11 +26,10 @@ To run the full stack locally, you need two terminal windows.
 
 ### 1. Start the Backend API (Terminal 1)
 ```bash
-cd backend
-# Install dependencies (fastapi, uvicorn)
-pip install fastapi uvicorn
+# Install dependencies using uv
+uv sync
 # Start the server on port 8000
-uvicorn main:app --reload --port 8000
+uv run uvicorn backend.main:app --reload --port 8000
 ```
 *(The backend should now be listening at http://127.0.0.1:8000)*
 
